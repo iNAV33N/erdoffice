@@ -61,14 +61,15 @@
       });
       directionsDisplay.setMap(map);
       directionsDisplay.setOptions( { suppressMarkers: true } );
+      var userMarker = null;
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(function(position) {
             var userPos = {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
             };
-            if(typeof userMarker === 'undefined'){
-              var userMarker = new google.maps.Marker({
+            if(userMarker == null){
+                userMarker = new google.maps.Marker({
                 position: userPos,
                 label: {text: 'You', fontWeight: 'bold'},
                 map: map
