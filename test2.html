@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <title>Map</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100%;
+    }
+    #floating-panel {
+      position: absolute;
+      top: 10px;
+      left: 25%;
+      z-index: 5;
+      background-color: #fff;
+      padding: 5px;
+      border: 1px solid #999;
+      text-align: center;
+      font-family: 'Roboto', 'sans-serif';
+      line-height: 30px;
+      padding-left: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    /*var urlLat = parseInt(getParameterByName('lat'));
+    var urlLong = parseInt(getParameterByName('long'));
+    var urlTitle = getParameterByName('title');*/
+    //console.log(`URL: ${window.location.href}\nLat: ${typeof urlLat}\nLong:${typeof urlLong}\nTitle:${typeof urlTitle}`);
+    function initMap() {
+      var directionsService = new google.maps.DirectionsService;
+      var directionsDisplay = new google.maps.DirectionsRenderer;
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: {
+          lat: 11.454225,
+          lng: 77.434509
+        }
+      });
+      directionsDisplay.setMap(map);
+      directionsDisplay.setOptions( { suppressMarkers: true } );
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(function(position) {
+            var userPos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            if(userMarker == null){
+              var userMarker = new google.maps.Marker({
+                position: userPos,
+                label: {text: 'You', fontWeight: 'bold'},
+                map: map
+              });
+              userMarker.setMap(map);
+            }else{
+              userMarker.setPosition(userPos);
+            }
+            
+        }, function () {
+          handleLocationError(true, infoWindow, map.getCenter());
+        },
+            {
+                enableHighAccuracy: true,
+                timeout: Infinity,
+                maximumAge: 0
+            }
+        );
+        /*navigator.geolocation.getCurrentPosition(function (position) {
+          var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          var place = {
+            lat: urlLat,
+            lng: urlLong
+          };
+          var marker = new google.maps.Marker({
+            position: place,
+            label: {text: urlTitle, fontWeight: 'bold'},
+            map: map
+          });
+          marker.setMap(map);
+          calculateAndDisplayRoute(directionsService, directionsDisplay, pos, place);
+        }, function () {
+          handleLocationError(true, infoWindow, map.getCenter());
+        });*/
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+      var infoWindow = new google.maps.InfoWindow();
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+          'Error: The Geolocation service failed.<br>Make sure location is turend on and you allow access.' :
+          'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map);
+      }
+    }
+    function calculateAndDisplayRoute(directionsService, directionsDisplay, pos, place) {
+      directionsService.route({
+        origin: pos,
+        destination: place,
+        travelMode: 'DRIVING'
+      }, function (response, status) {
+        if (status === 'OK') {
+          directionsDisplay.setDirections(response);
+        } else {
+          window.alert('Directions request failed due to ' + status);
+        }
+      });
+    }
+  </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCqfzmW_Py4uUVs61Y5KHRD_b0MSmEZ9mw&callback=initMap">
+  </script>
+</body>
+
+</html>
